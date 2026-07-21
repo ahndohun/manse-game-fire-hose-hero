@@ -1,1 +1,1 @@
-export const GAME_CONFIG = {"slug":"fire-hose-hero","title":"소방수 물줄기 (Fire Hose Hero)","summary":"Aim your fire hose and put out every flame to save the day.","creator":"Manse","sourceUrl":"https://github.com/replace-me/fire-hose-hero","locale":"ko"} as const;
+export const GAME_CONFIG = {"slug":"fire-hose-hero","title":"소방수 물줄기 (Fire Hose Hero)","summary":"Aim your fire hose and put out every flame to save the day.","creator":"Manse","sourceUrl":"https://github.com/ahndohun/manse-game-fire-hose-hero","locale":"ko"} as const;

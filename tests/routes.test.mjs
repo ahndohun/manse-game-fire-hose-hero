@@ -19,6 +19,8 @@ test("server-renders the anonymous game start experience", async () => {
   const html = await response.text();
   assert.match(html, /Play with pointer/);
   assert.match(html, /Camera stays on this device/);
+  assert.match(html, /https:\/\/github\.com\/ahndohun\/manse-game-fire-hose-hero/);
+  assert.doesNotMatch(html, /replace-me/);
   assert.doesNotMatch(html, /signin-with-chatgpt|<iframe\b|<form\b/i);
 });
 
