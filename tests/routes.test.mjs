@@ -17,7 +17,9 @@ test("server-renders the anonymous game start experience", async () => {
   const response = await render();
   assert.equal(response.status, 200);
   const html = await response.text();
-  assert.match(html, /Play with pointer/);
+  assert.match(html, /Start pointer training/);
+  assert.match(html, /Firehouse 07 needs a hose hero/);
+  assert.match(html, /3 alarms · 12 fires · 90 seconds/);
   assert.match(html, /Camera stays on this device/);
   assert.match(html, /한국어/);
   assert.match(html, /English/);
@@ -25,6 +27,29 @@ test("server-renders the anonymous game start experience", async () => {
   assert.match(html, /https:\/\/github\.com\/ahndohun\/manse-game-fire-hose-hero/);
   assert.doesNotMatch(html, /replace-me/);
   assert.doesNotMatch(html, /signin-with-chatgpt|<iframe\b|<form\b/i);
+  assert.doesNotMatch(html, /runtime ready|device tier/i);
+});
+
+test("ships a three-alarm mission and a game-specific AR renderer", async () => {
+  const [pack, clientSource, rendererSource, overlaySource] = await Promise.all([
+    readFile("public/packs/fire-hose-hero/manse.pack.json", "utf8").then(JSON.parse),
+    readFile("app/GameClient.tsx", "utf8"),
+    readFile("app/fire-hose-renderer.ts", "utf8"),
+    readFile("app/hose-overlay.tsx", "utf8"),
+  ]);
+  const challenges = pack.scenes.filter((scene) => scene.kind === "challenge");
+  assert.deepEqual(challenges.map((scene) => scene.id), ["alarm-one", "alarm-two", "alarm-three"]);
+  assert.deepEqual(challenges.map((scene) => scene.challenge.count), [3, 4, 5]);
+  assert.equal(challenges.reduce((total, scene) => total + scene.challenge.count, 0), 12);
+  assert.deepEqual(challenges.map((scene) => scene.challenge.zone), ["reachable", "upper", "full"]);
+  assert.deepEqual(challenges.map((scene) => scene.challenge.dwellMs), [700, 850, 1000]);
+  assert.equal(pack.scenes.some((scene) => scene.id === "all-clear" && scene.terminal), true);
+  assert.equal(pack.scenes.some((scene) => scene.id === "mission-failed" && scene.terminal), true);
+  assert.match(clientSource, /rendererFactory: createFireHoseRendererFactory/);
+  assert.match(rendererSource, /drawFirefighterCostume/);
+  assert.match(rendererSource, /drawFireTarget/);
+  assert.match(rendererSource, /SCORE/);
+  assert.match(overlaySource, /child's own aiming wrist becomes the hose nozzle/);
 });
 
 test("build bundles the public contract and pose runtime", async () => {

@@ -32,7 +32,7 @@
       "6-7",
       "8+"
     ],
-    "estMinutes": 3,
+    "estMinutes": 2,
     "engine": {
       "minimumVersion": "0.1.0",
       "maximumVersion": "0.2.0"
@@ -73,12 +73,12 @@
         "items": [
           {
             "locale": "ko",
-            "text": "소방서 종이 울려요! 불꽃이 하나둘 나타나요. 호스를 잡고 출동해요!",
+            "text": "소방서 07에 경보가 울려요. 호스를 잡고 첫 번째 구역으로 출동해요.",
             "audioAssetId": null
           },
           {
             "locale": "en",
-            "text": "The fire station bell is ringing! Flames are popping up — grab your hose!",
+            "text": "Firehouse 07 is sounding the alarm. Grab the hose and report to the first zone.",
             "audioAssetId": null
           }
         ],
@@ -93,24 +93,24 @@
       "transitions": [
         {
           "on": "always",
-          "to": "round-one",
+          "to": "alarm-one",
           "adapt": null
         }
       ]
     },
     {
-      "id": "round-one",
+      "id": "alarm-one",
       "kind": "challenge",
       "narration": {
         "items": [
           {
             "locale": "ko",
-            "text": "팔로 불꽃을 조준하고, 불이 꺼질 때까지 물줄기를 가만히 유지해요.",
+            "text": "차고 입구에 불꽃 세 개! 팔로 조준하고 차갑게 식을 때까지 물줄기를 유지해요.",
             "audioAssetId": null
           },
           {
             "locale": "en",
-            "text": "Point your arm at each flame and hold the stream on it until it goes out.",
+            "text": "Three fires at the garage doors. Aim with your arm and hold pressure until each one cools.",
             "audioAssetId": null
           }
         ],
@@ -119,12 +119,12 @@
       "demo": null,
       "challenge": {
         "type": "touch_targets",
-        "count": 5,
+        "count": 3,
         "zone": "reachable",
-        "targetScale": 1.4,
-        "dwellMs": 400,
+        "targetScale": 1.55,
+        "dwellMs": 700,
         "limb": "hands",
-        "timeBudgetMs": 172000,
+        "timeBudgetMs": 28000,
         "successAudioId": "success-tone",
         "encourageAudioId": "encourage-tone"
       },
@@ -138,34 +138,79 @@
       "transitions": [
         {
           "on": "success",
-          "to": "complete",
+          "to": "alarm-two",
           "adapt": null
         },
         {
           "on": "struggle",
-          "to": "round-two",
-          "adapt": {
-            "targetScaleMul": 1.2,
-            "dwellMsMul": 0.8,
-            "countDelta": -1,
-            "timeBudgetMul": 1.2
-          }
+          "to": "mission-failed",
+          "adapt": null
         }
       ]
     },
     {
-      "id": "round-two",
+      "id": "alarm-two",
       "kind": "challenge",
       "narration": {
         "items": [
           {
             "locale": "ko",
-            "text": "잘하고 있어요! 팔로 불꽃을 조준하고, 불이 꺼질 때까지 물줄기를 유지해요.",
+            "text": "위층 창문으로 번졌어요. 물줄기를 위로 쓸어 올려 불꽃 네 개를 진압해요.",
             "audioAssetId": null
           },
           {
             "locale": "en",
-            "text": "Point your arm at each flame and hold the stream on it until it goes out.",
+            "text": "The alarm moved upstairs. Sweep the stream high and cool all four window fires.",
+            "audioAssetId": null
+          }
+        ],
+        "captionDefaultOn": true
+      },
+      "demo": null,
+      "challenge": {
+        "type": "touch_targets",
+        "count": 4,
+        "zone": "upper",
+        "targetScale": 1.45,
+        "dwellMs": 850,
+        "limb": "hands",
+        "timeBudgetMs": 28000,
+        "successAudioId": "success-tone",
+        "encourageAudioId": "encourage-tone"
+      },
+      "learning": {
+        "kind": "none",
+        "payload": []
+      },
+      "artAssetId": null,
+      "energy": "high",
+      "terminal": false,
+      "transitions": [
+        {
+          "on": "success",
+          "to": "alarm-three",
+          "adapt": null
+        },
+        {
+          "on": "struggle",
+          "to": "mission-failed",
+          "adapt": null
+        }
+      ]
+    },
+    {
+      "id": "alarm-three",
+      "kind": "challenge",
+      "narration": {
+        "items": [
+          {
+            "locale": "ko",
+            "text": "마지막은 옥상이에요. 호스를 크게 움직여 남은 불꽃 다섯 개를 모두 진압해요.",
+            "audioAssetId": null
+          },
+          {
+            "locale": "en",
+            "text": "Final alarm on the rooftop. Make a wide hose sweep and extinguish the last five fires.",
             "audioAssetId": null
           }
         ],
@@ -175,11 +220,11 @@
       "challenge": {
         "type": "touch_targets",
         "count": 5,
-        "zone": "reachable",
-        "targetScale": 1.4,
-        "dwellMs": 400,
+        "zone": "full",
+        "targetScale": 1.35,
+        "dwellMs": 1000,
         "limb": "hands",
-        "timeBudgetMs": 172000,
+        "timeBudgetMs": 34000,
         "successAudioId": "success-tone",
         "encourageAudioId": "encourage-tone"
       },
@@ -188,34 +233,60 @@
         "payload": []
       },
       "artAssetId": null,
-      "energy": "medium",
+      "energy": "high",
       "terminal": false,
       "transitions": [
         {
           "on": "success",
-          "to": "complete",
+          "to": "all-clear",
           "adapt": null
         },
         {
           "on": "struggle",
-          "to": "complete",
+          "to": "mission-failed",
           "adapt": null
         }
       ]
     },
     {
-      "id": "complete",
+      "id": "all-clear",
       "kind": "celebration",
       "narration": {
         "items": [
           {
             "locale": "ko",
-            "text": "모든 불꽃을 껐어요! 진정한 소방수 물줄기 영웅이에요.",
+            "text": "모든 불꽃을 진압했어요. 소방서 07을 지킨 진짜 물줄기 영웅이에요.",
             "audioAssetId": null
           },
           {
             "locale": "en",
-            "text": "Every flame is out! You are a true Fire Hose Hero.",
+            "text": "Every fire is out. You protected Firehouse 07 like a true hose hero.",
+            "audioAssetId": null
+          }
+        ],
+        "captionDefaultOn": true
+      },
+      "demo": null,
+      "challenge": null,
+      "learning": null,
+      "artAssetId": null,
+      "energy": "calm",
+      "terminal": true,
+      "transitions": []
+    },
+    {
+      "id": "mission-failed",
+      "kind": "story",
+      "narration": {
+        "items": [
+          {
+            "locale": "ko",
+            "text": "아직 경보가 울리고 있어요. 숨을 고르고 포인터나 카메라로 다시 출동해요.",
+            "audioAssetId": null
+          },
+          {
+            "locale": "en",
+            "text": "The alarm is still active. Take a breath, then restart with pointer or camera.",
             "audioAssetId": null
           }
         ],
@@ -236,7 +307,7 @@
       0.85
     ],
     "maxStruggleStreak": 2,
-    "maxHighEnergyMs": 60000
+    "maxHighEnergyMs": 90000
   },
   "assets": {
     "images": [

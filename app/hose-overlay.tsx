@@ -12,10 +12,10 @@ import { useEffect, useRef } from "react";
 import type { AimPoint, AimState } from "./aim-shared";
 
 // --- Hose look & layout constants ---
-const HOSE_ORIGIN: AimPoint = { x: 0.07, y: 0.96 }; // bottom-left of the stage
-const STREAM_SAG = 0.07; // downward bow of the stream arc, fraction of stage height
-const DROPLET_COUNT = 26;
-const DROPLET_SPEED = 1.6; // stream segments per second
+const POINTER_HOSE_ORIGIN: AimPoint = { x: 0.5, y: 1.03 };
+const STREAM_SAG = 0.035;
+const DROPLET_COUNT = 38;
+const DROPLET_SPEED = 1.95;
 const STALE_CAMERA_MS = 600; // hide the stream when camera aim goes stale
 
 interface Vec {
@@ -73,27 +73,34 @@ export function HoseOverlay({ aim, active }: { aim: AimState; active: boolean })
       // Camera aim goes stale when the arm leaves the frame; pointer aim is always fresh.
       if (state.source === "camera" && nowMs - state.updatedAtMs > STALE_CAMERA_MS) return;
 
-      const origin: Vec = { x: HOSE_ORIGIN.x * width, y: HOSE_ORIGIN.y * height };
+      // In camera play the child's own aiming wrist becomes the hose nozzle.
+      // Pointer play uses a large first-person nozzle at the bottom of the TV.
+      const originPoint = state.source === "camera" && state.rawWrist !== null
+        ? state.rawWrist
+        : POINTER_HOSE_ORIGIN;
+      const origin: Vec = { x: originPoint.x * width, y: originPoint.y * height };
       const tip: Vec = { x: endpoint.x * width, y: endpoint.y * height };
       const control: Vec = {
         x: (origin.x + tip.x) / 2,
         y: Math.min(origin.y, tip.y) + height * STREAM_SAG,
       };
-      const baseWidth = Math.max(6, width * 0.012);
+      const baseWidth = Math.max(7, width * 0.0135);
       const now = nowMs / 1000;
 
-      // Layered stream body: soft outer glow, blue body, bright core.
+      // Layered stream body: turbulent mist, pressurized blue body, white core.
       context.lineCap = "round";
       context.lineJoin = "round";
       const layers: Array<[number, string]> = [
-        [2.8, "rgba(64, 164, 255, 0.22)"],
-        [1.5, "rgba(96, 190, 255, 0.65)"],
-        [0.55, "rgba(228, 248, 255, 0.95)"],
+        [3.4, "rgba(63, 176, 222, 0.18)"],
+        [2.05, "rgba(80, 196, 235, 0.54)"],
+        [1.08, "rgba(121, 221, 250, 0.88)"],
+        [0.38, "rgba(239, 253, 255, 0.98)"],
       ];
       for (const [scale, color] of layers) {
         context.beginPath();
         context.moveTo(origin.x, origin.y);
-        context.quadraticCurveTo(control.x, control.y, tip.x, tip.y);
+        const pressureWobble = Math.sin(now * 15) * baseWidth * 0.18;
+        context.quadraticCurveTo(control.x, control.y + pressureWobble, tip.x, tip.y);
         context.strokeStyle = color;
         context.lineWidth = baseWidth * scale;
         context.stroke();
@@ -103,7 +110,7 @@ export function HoseOverlay({ aim, active }: { aim: AimState; active: boolean })
       for (let i = 0; i < DROPLET_COUNT; i += 1) {
         const phase = (i / DROPLET_COUNT + now * DROPLET_SPEED) % 1;
         const point = quadraticAt(origin, control, tip, phase);
-        const wobble = (rand(i) - 0.5) * baseWidth * 2.4 * Math.sin(now * 9 + i * 1.7);
+        const wobble = (rand(i) - 0.5) * baseWidth * 3.1 * Math.sin(now * 11 + i * 1.7);
         const size = baseWidth * (0.16 + rand(i + 100) * 0.3) * (0.5 + phase);
         context.beginPath();
         context.arc(point.x, point.y + wobble, Math.max(1, size), 0, Math.PI * 2);
@@ -111,28 +118,70 @@ export function HoseOverlay({ aim, active }: { aim: AimState; active: boolean })
         context.fill();
       }
 
-      // Splash at the impact point: bright blob plus an expanding ring.
+      // Splash at the impact point: multiple droplets plus two pressure rings.
       const ringPhase = (now * 1.4) % 1;
-      context.beginPath();
-      context.arc(tip.x, tip.y, baseWidth * (0.8 + ringPhase * 2.2), 0, Math.PI * 2);
-      context.strokeStyle = `rgba(150, 215, 255, ${0.7 * (1 - ringPhase)})`;
-      context.lineWidth = Math.max(2, baseWidth * 0.28);
-      context.stroke();
+      for (let ring = 0; ring < 2; ring += 1) {
+        const phase = (ringPhase + ring * 0.5) % 1;
+        context.beginPath();
+        context.arc(tip.x, tip.y, baseWidth * (0.8 + phase * 3.1), 0, Math.PI * 2);
+        context.strokeStyle = `rgba(156, 231, 255, ${0.72 * (1 - phase)})`;
+        context.lineWidth = Math.max(2, baseWidth * 0.25);
+        context.stroke();
+      }
+      for (let i = 0; i < 12; i += 1) {
+        const angle = (i / 12) * Math.PI * 2 + now * 0.7;
+        const radius = baseWidth * (1.1 + rand(i + 220) * 2.8);
+        context.beginPath();
+        context.ellipse(
+          tip.x + Math.cos(angle) * radius,
+          tip.y + Math.sin(angle) * radius,
+          Math.max(1.4, baseWidth * 0.16),
+          Math.max(2.2, baseWidth * 0.38),
+          angle,
+          0,
+          Math.PI * 2,
+        );
+        context.fillStyle = "rgba(206, 244, 255, .72)";
+        context.fill();
+      }
       context.beginPath();
       context.arc(tip.x, tip.y, baseWidth * 0.8, 0, Math.PI * 2);
       context.fillStyle = "rgba(215, 242, 255, 0.9)";
       context.fill();
 
-      // Hose nozzle at the origin.
+      // A readable first-person brass nozzle replaces the old debug dot.
+      const angle = Math.atan2(tip.y - origin.y, tip.x - origin.x);
+      context.save();
+      context.translate(origin.x, origin.y);
+      context.rotate(angle);
+      const nozzleLength = state.source === "camera" ? baseWidth * 3.2 : baseWidth * 6.2;
+      const nozzleRadius = state.source === "camera" ? baseWidth * 0.95 : baseWidth * 1.55;
+      const metal = context.createLinearGradient(-nozzleLength, 0, nozzleLength, 0);
+      metal.addColorStop(0, "#273844");
+      metal.addColorStop(0.48, "#d8a941");
+      metal.addColorStop(0.72, "#ffe38a");
+      metal.addColorStop(1, "#8a5b1f");
+      context.fillStyle = metal;
       context.beginPath();
-      context.arc(origin.x, origin.y, baseWidth * 1.5, 0, Math.PI * 2);
-      context.fillStyle = "#2b3446";
+      context.roundRect(-nozzleLength * 0.72, -nozzleRadius, nozzleLength, nozzleRadius * 2, nozzleRadius * 0.38);
       context.fill();
-      context.beginPath();
-      context.arc(origin.x, origin.y, baseWidth * 1.5, 0, Math.PI * 2);
-      context.strokeStyle = "rgba(201, 244, 93, 0.9)";
-      context.lineWidth = Math.max(2, baseWidth * 0.22);
+      context.strokeStyle = "rgba(255,238,173,.9)";
+      context.lineWidth = Math.max(2, baseWidth * 0.2);
       context.stroke();
+      context.fillStyle = "#142732";
+      context.beginPath();
+      context.ellipse(nozzleLength * 0.28, 0, nozzleRadius * 0.44, nozzleRadius * 0.84, 0, 0, Math.PI * 2);
+      context.fill();
+      if (state.source !== "camera") {
+        context.fillStyle = "#b72f26";
+        context.beginPath();
+        context.roundRect(-nozzleLength * 1.4, -nozzleRadius * 0.9, nozzleLength * 0.75, nozzleRadius * 1.8, nozzleRadius * 0.4);
+        context.fill();
+        context.strokeStyle = "#ffd45e";
+        context.lineWidth = Math.max(3, baseWidth * 0.22);
+        context.stroke();
+      }
+      context.restore();
     };
     frameHandle = requestAnimationFrame(draw);
     return () => {

@@ -4,25 +4,36 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { createMansePlayer, type MansePlayer, type PlayerSnapshot, type ProviderKind } from "@manse/runtime-web";
 import { createAimState, resetAimState, type AimState } from "./aim-shared";
 import { createAimProviderFactory } from "./aim-provider";
+import { FireMissionAudio } from "./fire-audio";
+import { createFireHoseRendererFactory } from "./fire-hose-renderer";
 import { HoseOverlay } from "./hose-overlay";
 import { GAME_CONFIG, type GameLocale } from "./game-config";
+import {
+  createFireMissionState,
+  enterMissionScene,
+  registerFireOut,
+  resetFireMissionState,
+} from "./mission-state";
 
 const PACK_URL = `/packs/${GAME_CONFIG.slug}/manse.pack.json`;
-const EMPTY: Pick<PlayerSnapshot, "phase" | "provider" | "tier" | "renderer" | "cameraActive" | "targetProgress" | "caption"> = {
+const EMPTY: Pick<PlayerSnapshot, "phase" | "sceneId" | "sceneKind" | "provider" | "tier" | "renderer" | "cameraActive" | "targetProgress" | "targets" | "caption"> = {
   phase: "idle",
+  sceneId: null,
+  sceneKind: null,
   provider: "simulated",
   tier: "A",
   renderer: null,
   cameraActive: false,
   targetProgress: null,
+  targets: [],
   caption: null,
 };
 
 const UI_COPY = {
   en: {
-    kicker: "Water-powered active play",
-    heroNote: "Aim the hose, hold steady, and cool every ember.",
-    gameDetails: "5 flames · about 3 minutes",
+    kicker: "Firehouse 07 is calling",
+    heroNote: "Point your arm like a hose. The stream follows where you aim.",
+    gameDetails: "3 alarms · 12 fires · 90-second mission",
     privacy: "Camera stays on this device · no account · no analytics",
     localeLabel: "Choose language",
     playerLabel: "Game player",
@@ -36,11 +47,15 @@ const UI_COPY = {
       camera: "Camera stays on device",
       simulator: "Simulator live",
     },
-    runtimeReady: "runtime ready",
-    tier: "tier",
-    startDescription: "Start with the simulator. Camera mode is optional and asks permission only after you choose it.",
-    pointerPlay: "Play with pointer",
-    cameraPlay: "Use my camera",
+    missionSpec: "3 alarms · 12 fires · 90 seconds",
+    dispatch: "Dispatch briefing",
+    startTitle: "Firehouse 07 needs a hose hero.",
+    startDescription: "Sweep the stream onto each fire and hold it steady until the smoke turns cool.",
+    stepAim: "Aim with your arm or pointer",
+    stepHold: "Hold pressure on the flame",
+    stepClear: "Clear all three alarm zones",
+    pointerPlay: "Start pointer training",
+    cameraPlay: "Suit up with camera",
     comfortableSpace: "Choose a private, comfortable play space.",
     restartPointer: "Restart with pointer",
     switchCamera: "Switch to camera",
@@ -50,9 +65,9 @@ const UI_COPY = {
     source: "View source ↗",
   },
   ko: {
-    kicker: "물줄기로 즐기는 움직임 놀이",
-    heroNote: "호스를 조준하고 차분히 물줄기를 유지해 모든 불꽃을 식혀 보세요.",
-    gameDetails: "불꽃 5개 · 약 3분",
+    kicker: "소방서 07에서 출동 요청",
+    heroNote: "팔을 호스처럼 뻗어 보세요. 조준한 곳으로 물줄기가 따라갑니다.",
+    gameDetails: "출동 3회 · 불꽃 12개 · 90초 임무",
     privacy: "카메라 영상은 이 기기에만 머물러요 · 계정 불필요 · 분석 도구 없음",
     localeLabel: "언어 선택",
     playerLabel: "게임 플레이어",
@@ -66,11 +81,15 @@ const UI_COPY = {
       camera: "카메라 영상은 기기에만 저장돼요",
       simulator: "포인터 모드 실행 중",
     },
-    runtimeReady: "런타임 준비 완료",
-    tier: "기기 등급",
-    startDescription: "먼저 포인터 모드로 시작해 보세요. 카메라는 선택 사항이며, 직접 선택한 뒤에만 권한을 요청합니다.",
-    pointerPlay: "포인터로 플레이",
-    cameraPlay: "내 카메라 사용",
+    missionSpec: "출동 3회 · 불꽃 12개 · 90초",
+    dispatch: "출동 브리핑",
+    startTitle: "소방서 07에 물줄기 영웅이 필요해요.",
+    startDescription: "불꽃에 물줄기를 맞추고 연기가 차갑게 식을 때까지 조준을 유지하세요.",
+    stepAim: "팔이나 포인터로 조준",
+    stepHold: "불꽃 위에 물줄기 유지",
+    stepClear: "세 구역의 경보 모두 해제",
+    pointerPlay: "포인터 훈련 시작",
+    cameraPlay: "카메라로 출동",
     comfortableSpace: "사생활이 보호되고 편안한 놀이 공간을 선택하세요.",
     restartPointer: "포인터로 다시 시작",
     switchCamera: "카메라로 전환",
@@ -96,6 +115,9 @@ export function GameClient() {
   const destructionRef = useRef<Promise<void>>(Promise.resolve());
   const runIdRef = useRef(0);
   const aimRef = useRef<AimState>(createAimState());
+  const missionRef = useRef(createFireMissionState(GAME_CONFIG.defaultLocale));
+  const audioRef = useRef(new FireMissionAudio());
+  const pointerReadyAtRef = useRef(Number.POSITIVE_INFINITY);
   const [locale, setLocale] = useState<GameLocale>(GAME_CONFIG.defaultLocale);
   const [snapshot, setSnapshot] = useState(EMPTY);
   const [busy, setBusy] = useState(false);
@@ -124,6 +146,9 @@ export function GameClient() {
     unsubscribeRef.current?.();
     unsubscribeRef.current = null;
     resetAimState(aimRef.current);
+    pointerReadyAtRef.current = Number.POSITIVE_INFINITY;
+    audioRef.current.stop();
+    resetFireMissionState(missionRef.current, missionRef.current.locale);
     setSnapshot({ ...EMPTY });
     setBusy(false);
     setResetting(true);
@@ -140,6 +165,10 @@ export function GameClient() {
     await destroyActivePlayer();
     if (runId !== runIdRef.current) return;
     resetAimState(aimRef.current);
+    resetFireMissionState(missionRef.current, selectedLocale);
+    pointerReadyAtRef.current = provider === "simulated"
+      ? performance.now() + 3_200
+      : Number.POSITIVE_INFINITY;
     setSnapshot({ ...EMPTY });
 
     const player = createMansePlayer({
@@ -151,21 +180,52 @@ export function GameClient() {
       // Aim-from-distance: camera frames get their wrists rewritten to the
       // projected aim impact point; simulated/replay pass through untouched.
       providerFactory: createAimProviderFactory(aimRef.current),
+      rendererFactory: createFireHoseRendererFactory(aimRef.current, missionRef.current),
       onEvent: (event) => {
         if (runId !== runIdRef.current) return;
-        if (event.type === "error") setErrorKind("runtime");
+        const nowMs = performance.now();
+        if (event.type === "target-hit") {
+          registerFireOut(missionRef.current, event.targetId, nowMs);
+          audioRef.current.targetHit(missionRef.current.combo);
+        } else if (event.type === "scene-changed") {
+          enterMissionScene(missionRef.current, event.sceneId, nowMs);
+          if (event.sceneId === "alarm-two" || event.sceneId === "alarm-three") audioRef.current.waveCleared();
+          if (event.sceneId === "all-clear") audioRef.current.victory();
+          if (event.sceneId === "mission-failed") audioRef.current.failure();
+        } else if (event.type === "complete") {
+          audioRef.current.stop();
+        } else if (event.type === "error") {
+          audioRef.current.stop();
+          setErrorKind("runtime");
+        }
       },
     });
     playerRef.current = player;
     unsubscribeRef.current = player.subscribe((next) => {
-      if (runId === runIdRef.current) setSnapshot(next);
+      if (runId === runIdRef.current) {
+        missionRef.current.phase = next.phase;
+        missionRef.current.sceneId = next.sceneId;
+        missionRef.current.locale = selectedLocale;
+        setSnapshot(next);
+      }
     });
     try {
       await player.load(PACK_URL);
       await player.setup();
+      if (provider === "simulated") {
+        // Park both synthetic hands outside the mission layout. The runtime's
+        // neutral standing pose otherwise overlaps a large reachable target
+        // and awards a fire before the player moves.
+        player.setPointer(0.04, 0.96, "left");
+        player.setPointer(0.96, 0.96, "right");
+      }
       await player.play();
+      audioRef.current.startWater();
     } catch {
-      if (runId === runIdRef.current) setErrorKind("start");
+      if (runId === runIdRef.current) {
+        audioRef.current.stop();
+        setErrorKind("start");
+      }
     } finally {
       if (runId === runIdRef.current) setBusy(false);
     }
@@ -177,6 +237,7 @@ export function GameClient() {
     return () => {
       runIdRef.current += 1;
       unsubscribeRef.current?.();
+      audioRef.current.destroy();
       void destroyActivePlayer();
     };
   }, [destroyActivePlayer]);
@@ -196,6 +257,7 @@ export function GameClient() {
 
   const start = (provider: ProviderKind) => {
     if (resetting) return;
+    audioRef.current.arm();
     setBusy(true);
     setErrorKind(null);
     void boot(provider, locale);
@@ -203,6 +265,10 @@ export function GameClient() {
 
   const movePointer = (clientX: number, clientY: number) => {
     if (busy || resetting || snapshot.provider !== "simulated") return;
+    // Ignore the pointer events generated while the start button disappears.
+    // Without this arming window, the old button coordinate can extinguish a
+    // fire before the player has made their first intentional move.
+    if (performance.now() < pointerReadyAtRef.current) return;
     const bounds = stageRef.current?.getBoundingClientRect();
     if (bounds === undefined || bounds.width === 0 || bounds.height === 0) return;
     const x = (clientX - bounds.left) / bounds.width;
@@ -228,10 +294,8 @@ export function GameClient() {
     : errorKind === "start"
       ? t.startError
       : null;
-  const overlayActive = snapshot.phase === "playing"
-    || snapshot.phase === "celebrating"
-    || snapshot.phase === "complete"
-    || snapshot.phase === "paused";
+  const overlayActive = snapshot.sceneKind === "challenge"
+    && (snapshot.phase === "playing" || snapshot.phase === "celebrating" || snapshot.phase === "paused");
   const status = errorKind !== null
     ? t.status.error
     : busy
@@ -275,7 +339,7 @@ export function GameClient() {
       <section className="player-shell" aria-label={t.playerLabel}>
         <div className="player-bar">
           <span><i className={errorKind === null ? "status-dot" : "status-dot status-error"} aria-hidden="true" /> {status}</span>
-          <span>{snapshot.renderer ?? t.runtimeReady} · {t.tier} {snapshot.tier}</span>
+          <span>{t.missionSpec}</span>
         </div>
         <div
           className="stage"
@@ -288,13 +352,24 @@ export function GameClient() {
             event.currentTarget.setPointerCapture(event.pointerId);
             movePointer(event.clientX, event.clientY);
           }}
-          onPointerMove={(event) => movePointer(event.clientX, event.clientY)}
+          onPointerMove={(event) => {
+            if ((event.target as HTMLElement).closest("button, a")) return;
+            movePointer(event.clientX, event.clientY);
+          }}
+          data-manse-targets={JSON.stringify(snapshot.targets.map(({ id, x, y, hit }) => ({ id, x, y, hit })))}
           aria-label={t.stageLabel}
         >
           <HoseOverlay aim={aimRef.current} active={overlayActive} />
           {snapshot.phase === "idle" && (
             <div className="start-card">
+              <span className="dispatch-label">{t.dispatch}</span>
+              <h2>{t.startTitle}</h2>
               <p>{t.startDescription}</p>
+              <ol className="briefing-steps">
+                <li><span>01</span>{t.stepAim}</li>
+                <li><span>02</span>{t.stepHold}</li>
+                <li><span>03</span>{t.stepClear}</li>
+              </ol>
               <div className="actions">
                 <button type="button" onClick={() => start("simulated")} disabled={busy || resetting}>{t.pointerPlay}</button>
                 <button className="secondary" type="button" onClick={() => start("mediapipe")} disabled={busy || resetting}>{t.cameraPlay}</button>
@@ -303,8 +378,9 @@ export function GameClient() {
           )}
         </div>
         <div className="player-footer" aria-live="polite">
-          <span>{errorMessage ?? snapshot.caption ?? t.comfortableSpace}</span>
-          <strong>{progress === null ? "—" : `${progress.completed} / ${progress.total}`}</strong>
+          <span>{errorMessage ?? t.comfortableSpace}</span>
+          <strong>{missionRef.current.firesOut} / 12</strong>
+          {snapshot.caption !== null && <span className="sr-only">{snapshot.caption}</span>}
         </div>
         {snapshot.phase !== "idle" && (
           <div className="restart-row">
@@ -316,7 +392,7 @@ export function GameClient() {
 
       <footer>
         <p>{t.footer}</p>
-        <a href={GAME_CONFIG.sourceUrl}>{t.source}</a>
+        <a href={GAME_CONFIG.sourceUrl} target="_blank" rel="noreferrer">{t.source}</a>
       </footer>
     </>
   );

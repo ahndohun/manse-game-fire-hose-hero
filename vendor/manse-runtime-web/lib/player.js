@@ -183,6 +183,7 @@ class BrowserMansePlayer {
             targetProgress: session === null || session.totalTargets === 0
                 ? null
                 : { completed: session.completedTargets, total: session.totalTargets },
+            targets: session?.targets ?? [],
             challenge: session?.challenge ?? null,
             players: session?.players ?? [],
             metrics: {

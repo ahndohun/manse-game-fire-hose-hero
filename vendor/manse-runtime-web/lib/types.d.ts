@@ -201,6 +201,8 @@ export interface PlayerSnapshot {
         readonly completed: number;
         readonly total: number;
     } | null;
+    /** App-facing target geometry for game-specific presenters and deterministic QA. */
+    readonly targets: readonly RuntimeTarget[];
     /** Generic challenge progress; null outside challenge scenes. */
     readonly challenge: ChallengeGuide | null;
     /** Per-player progress for multiplayer packs; empty in solo play. */
