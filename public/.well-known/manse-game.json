@@ -17,7 +17,7 @@
   "creator": "Manse",
   "energy": "active",
   "gameUrl": "https://fire-hose-hero.example.invalid/",
-  "sourceUrl": "https://github.com/replace-me/fire-hose-hero",
+  "sourceUrl": "https://github.com/ahndohun/manse-game-fire-hose-hero",
   "engineVersion": "0.2.0",
   "locales": [
     "ko"
