@@ -19,8 +19,9 @@
     "typecheck": "tsc --noEmit",
     "test": "npm run build && node --test tests/*.test.mjs",
     "validate:content": "manse validate . --json",
-    "validate:release": "node scripts/check-release.mjs",
-    "validate": "npm run typecheck && npm run test && npm run validate:content"
+    "validate:quality": "node scripts/check-game-quality.mjs",
+    "validate:release": "node scripts/check-release.mjs && node scripts/check-game-quality.mjs --release",
+    "validate": "npm run typecheck && npm run test && npm run validate:content && npm run validate:quality"
   },
   "dependencies": {
     "@manse/runtime-web": "file:vendor/manse-runtime-web",

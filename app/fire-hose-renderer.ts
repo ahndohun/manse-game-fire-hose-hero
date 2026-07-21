@@ -10,7 +10,6 @@ import type {
 import type { AimState } from "./aim-shared";
 import type { FireMissionState } from "./mission-state";
 
-const MISSION_SECONDS = 90;
 const TOTAL_FIRES = 12;
 const FONT = '"Avenir Next", Avenir, "Segoe UI", system-ui, sans-serif';
 const MONO = 'ui-monospace, "SFMono-Regular", Menlo, monospace';
@@ -42,6 +41,7 @@ const COPY = {
     score: "SCORE",
     firesOut: "FIRES OUT",
     pressure: "HOSE PRESSURE",
+    waveTime: "WAVE TIME",
     combo: "STEADY STREAM",
     alarm: "ALARM",
     waveLocations: ["GARAGE DOORS", "UPPER WINDOWS", "ROOFTOP RESCUE"],
@@ -59,6 +59,7 @@ const COPY = {
     score: "점수",
     firesOut: "진압한 불",
     pressure: "호스 압력",
+    waveTime: "구역 제한 시간",
     combo: "연속 진압",
     alarm: "출동",
     waveLocations: ["차고 입구", "위층 창문", "옥상 구조"],
@@ -154,7 +155,7 @@ class FireHoseRenderer implements RuntimeRenderer {
     drawMissionHud(context, size, frame, this.aim, this.mission);
     drawWaveMoment(context, size, frame, this.mission);
     if (frame.caption !== null && this.mission.outcome === "active") {
-      drawCaption(context, size, frame.caption);
+      drawCaption(context, size, frame.caption, frame.targets);
     }
     drawOutcome(context, size, this.mission, frame.timestampMs, frame.reducedStimulation);
   }
@@ -688,9 +689,14 @@ function drawMissionHud(
   context.font = `900 ${compact ? 27 : Math.max(28, panelHeight * 0.42)}px ${FONT}`;
   context.fillText(`${mission.firesOut}/${TOTAL_FIRES}`, rightX + 13, pad + (compact ? 24 : 29));
 
-  const elapsed = mission.startedAtMs > 0 ? Math.max(0, frame.timestampMs - mission.startedAtMs) : 0;
-  const remaining = Math.max(0, MISSION_SECONDS - Math.floor(elapsed / 1000));
+  const elapsed = mission.waveStartedAtMs > 0 ? Math.max(0, frame.timestampMs - mission.waveStartedAtMs) : 0;
+  const remaining = Math.max(0, waveSeconds(mission.sceneId) - Math.floor(elapsed / 1000));
   const secondsText = `${String(Math.floor(remaining / 60)).padStart(2, "0")}:${String(remaining % 60).padStart(2, "0")}`;
+  context.fillStyle = "#9ac6ce";
+  context.font = `700 ${compact ? 7 : Math.max(8, size.width * 0.008)}px ${MONO}`;
+  context.textAlign = "right";
+  context.textBaseline = "top";
+  context.fillText(copy.waveTime, rightX + rightWidth - 12, pad + 12);
   context.fillStyle = remaining <= 15 ? "#ff8d70" : "#ffd45e";
   context.font = `800 ${compact ? 16 : Math.max(18, panelHeight * 0.28)}px ${MONO}`;
   context.textAlign = "right";
@@ -842,16 +848,30 @@ function drawOutcome(
   context.restore();
 }
 
-function drawCaption(context: CanvasRenderingContext2D, size: Size, caption: string): void {
+function drawCaption(
+  context: CanvasRenderingContext2D,
+  size: Size,
+  caption: string,
+  targets: readonly RuntimeTarget[],
+): void {
   const compact = size.width < 560;
   const fontSize = compact ? 13 : Math.max(14, Math.min(25, size.width * 0.02));
   context.save();
   context.font = `700 ${fontSize}px ${FONT}`;
-  const maxWidth = compact ? size.width * 0.84 : Math.min(size.width * 0.72, 760);
-  const lines = wrapText(context, caption, maxWidth - fontSize * 2.2).slice(0, 2);
+  const maxWidth = compact ? size.width * 0.84 : Math.min(size.width * 0.42, 520);
+  const lines = wrapText(context, caption, maxWidth - fontSize * 2.2).slice(0, 3);
   const height = Math.max(50, lines.length * fontSize * 1.38 + fontSize * 1.1);
-  const x = (size.width - maxWidth) / 2;
   const y = size.height - height - (compact ? 76 : Math.max(80, size.height * 0.14));
+  const edge = compact ? 0 : Math.max(18, size.width * 0.022);
+  const candidates = compact
+    ? [(size.width - maxWidth) / 2]
+    : [edge, size.width - edge - maxWidth];
+  const x = candidates.reduce((best, candidate) => (
+    captionTargetOverlap(candidate, y, maxWidth, height, targets, size)
+      < captionTargetOverlap(best, y, maxWidth, height, targets, size)
+      ? candidate
+      : best
+  ));
   context.fillStyle = "rgba(4,17,25,.8)";
   roundedRect(context, x, y, maxWidth, height, 14);
   context.fill();
@@ -859,18 +879,49 @@ function drawCaption(context: CanvasRenderingContext2D, size: Size, caption: str
   context.lineWidth = 1;
   context.stroke();
   context.fillStyle = "white";
-  context.textAlign = "center";
+  context.textAlign = compact ? "center" : "left";
   context.textBaseline = "middle";
   lines.forEach((line, index) => {
-    context.fillText(line, size.width / 2, y + height / 2 + (index - (lines.length - 1) / 2) * fontSize * 1.35);
+    context.fillText(
+      line,
+      compact ? size.width / 2 : x + fontSize * 1.1,
+      y + height / 2 + (index - (lines.length - 1) / 2) * fontSize * 1.35,
+    );
   });
   context.restore();
+}
+
+function captionTargetOverlap(
+  x: number,
+  y: number,
+  width: number,
+  height: number,
+  targets: readonly RuntimeTarget[],
+  size: Size,
+): number {
+  return targets.reduce((total, target) => {
+    if (target.hit) return total;
+    const targetX = target.x * size.width;
+    const targetY = target.y * size.height;
+    const radius = target.radius * Math.min(size.width, size.height) + 18;
+    const overlaps = targetX + radius > x
+      && targetX - radius < x + width
+      && targetY + radius > y
+      && targetY - radius < y + height;
+    return total + (overlaps ? 1 : 0);
+  }, 0);
 }
 
 function waveIndex(sceneId: string | null): number {
   if (sceneId === "alarm-one") return 1;
   if (sceneId === "alarm-two") return 2;
   if (sceneId === "alarm-three") return 3;
+  return 0;
+}
+
+function waveSeconds(sceneId: string | null): number {
+  if (sceneId === "alarm-one" || sceneId === "alarm-two") return 28;
+  if (sceneId === "alarm-three") return 34;
   return 0;
 }
 

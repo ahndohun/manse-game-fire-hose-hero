@@ -1,0 +1,55 @@
+{
+  "schemaVersion": 1,
+  "status": "approved",
+  "identity": {
+    "fantasy": "Become Firehouse 07's hose hero and save the station before each alarm zone is overwhelmed.",
+    "playerVerb": "Aim a continuous hose stream with your arm or pointer and hold steady pressure on each flame.",
+    "targetMetaphor": "Characterful station fires that flare, sputter under water, steam, and extinguish into cool smoke."
+  },
+  "beats": [
+    {
+      "id": "alarm-one",
+      "purpose": "Learn the hose by suppressing three forgiving garage-door fires."
+    },
+    {
+      "id": "alarm-two",
+      "purpose": "Raise the aim and pressure demands across four upper-window fires."
+    },
+    {
+      "id": "alarm-three",
+      "purpose": "Resolve the rescue with five smaller rooftop fires and the tightest holds."
+    }
+  ],
+  "presenter": {
+    "source": "app/fire-hose-renderer.ts",
+    "themedEntities": [
+      "Firehouse 07 alarm-zone set",
+      "continuous fire-hose stream and nozzle",
+      "expressive multi-state flame characters",
+      "firefighter helmet and coat camera costume"
+    ],
+    "reactiveStates": [
+      "burning and flaring",
+      "sputtering under partial hose pressure",
+      "extinguished with water impact and rising steam"
+    ],
+    "continuousFeedback": "The hose bends from the nozzle to the live aim point while water droplets, pressure, dwell rings, facial reactions, and audio respond continuously.",
+    "scoreAndResolution": "A persistent score, fires-out tally, wave timer, pressure gauge, combo bonus, three alarm transitions, failure panel, and all-clear victory resolve the mission."
+  },
+  "qualityGates": {
+    "themedEntitiesInPlay": true,
+    "threeReactiveStates": true,
+    "continuousInputFeedback": true,
+    "authoredEscalation": true,
+    "scoreAndResolution": true,
+    "threeGameplaySounds": true,
+    "noDebugChrome": true,
+    "cameraSimulatorParity": true,
+    "reducedMotionVerified": true
+  },
+  "evidence": {
+    "gameplayScreenshot": "evidence/fire-hose-hero-gameplay.png",
+    "completionScreenshot": "evidence/fire-hose-hero-victory.png",
+    "playtestNotes": "evidence/playtest-notes.md"
+  }
+}
