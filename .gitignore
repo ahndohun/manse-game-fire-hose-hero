@@ -1,0 +1,12 @@
+node_modules/
+dist/
+.vinext/
+.wrangler/
+.DS_Store
+*.log
+.env
+.env.*
+!.env.example
+*.tsbuildinfo
+/public/models/*.task
+/public/vendor/mediapipe/wasm/

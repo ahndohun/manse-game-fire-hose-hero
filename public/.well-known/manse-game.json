@@ -1,0 +1,64 @@
+{
+  "schemaVersion": 1,
+  "id": "manse.fire-hose-hero",
+  "slug": "fire-hose-hero",
+  "title": [
+    {
+      "locale": "ko",
+      "text": "소방수 물줄기 (Fire Hose Hero)"
+    }
+  ],
+  "summary": [
+    {
+      "locale": "ko",
+      "text": "Aim your fire hose and put out every flame to save the day."
+    }
+  ],
+  "creator": "Manse",
+  "energy": "active",
+  "gameUrl": "https://fire-hose-hero.example.invalid/",
+  "sourceUrl": "https://github.com/replace-me/fire-hose-hero",
+  "engineVersion": "0.2.0",
+  "locales": [
+    "ko"
+  ],
+  "ageRange": {
+    "min": 4,
+    "max": 8
+  },
+  "movementTags": [
+    "touch"
+  ],
+  "accessibility": {
+    "captions": true,
+    "seatedMode": true,
+    "highContrast": true,
+    "reducedStimulation": true,
+    "audioCues": true
+  },
+  "thumbnail": {
+    "url": "https://fire-hose-hero.example.invalid/thumbnail.png",
+    "mediaType": "image/png",
+    "alt": [
+      {
+        "locale": "ko",
+        "text": "Abstract motion-game artwork for 소방수 물줄기 (Fire Hose Hero)"
+      }
+    ]
+  },
+  "license": {
+    "spdxId": "MIT",
+    "name": "MIT License",
+    "url": "https://spdx.org/licenses/MIT.html",
+    "attribution": "Manse — 소방수 물줄기 (Fire Hose Hero)"
+  },
+  "contentProvenance": {
+    "hasGeneratedAssets": false,
+    "hasThirdPartyAssets": true,
+    "provenanceUrl": "https://fire-hose-hero.example.invalid/asset-provenance.json"
+  },
+  "permissions": {
+    "camera": true,
+    "deviceLocalStorage": true
+  }
+}

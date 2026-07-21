@@ -1,0 +1,20 @@
+{
+  "name": "@manse/cli",
+  "version": "0.2.0",
+  "license": "MIT",
+  "type": "module",
+  "main": "./lib/index.js",
+  "types": "./lib/index.d.ts",
+  "bin": {
+    "manse": "./lib/cli.js"
+  },
+  "exports": {
+    ".": {
+      "types": "./lib/index.d.ts",
+      "import": "./lib/index.js"
+    }
+  },
+  "dependencies": {
+    "@manse/schema": "0.2.0"
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "state": "draft",
+  "createdBy": "Manse Creator 0.2.0",
+  "createdAt": "2026-07-21T14:34:12.782Z",
+  "placeholders": [
+    "gameUrl",
+    "thumbnail.url",
+    "contentProvenance.provenanceUrl",
+    "sourceUrl"
+  ]
+}

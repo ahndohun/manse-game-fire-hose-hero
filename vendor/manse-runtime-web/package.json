@@ -1,0 +1,23 @@
+{
+  "name": "@manse/runtime-web",
+  "version": "0.2.0",
+  "license": "MIT",
+  "type": "module",
+  "sideEffects": false,
+  "main": "./lib/index.js",
+  "types": "./lib/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./lib/index.d.ts",
+      "import": "./lib/index.js"
+    },
+    "./testing": {
+      "types": "./lib/testing.d.ts",
+      "import": "./lib/testing.js"
+    }
+  },
+  "dependencies": {
+    "@manse/schema": "0.2.0",
+    "@mediapipe/tasks-vision": "0.10.35"
+  }
+}

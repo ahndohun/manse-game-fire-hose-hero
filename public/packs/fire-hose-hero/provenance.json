@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 1,
+  "assets": [
+    {
+      "assetId": "success-tone",
+      "path": "assets/audio/success.wav",
+      "license": {
+        "spdxId": "MIT",
+        "name": "MIT License",
+        "url": "https://spdx.org/licenses/MIT.html",
+        "attribution": "Manse — 소방수 물줄기 (Fire Hose Hero)"
+      },
+      "provenance": {
+        "kind": "original",
+        "creator": "Manse",
+        "createdAt": "2026-07-21T14:34:12.782Z"
+      }
+    },
+    {
+      "assetId": "encourage-tone",
+      "path": "assets/audio/encourage.wav",
+      "license": {
+        "spdxId": "MIT",
+        "name": "MIT License",
+        "url": "https://spdx.org/licenses/MIT.html",
+        "attribution": "Manse — 소방수 물줄기 (Fire Hose Hero)"
+      },
+      "provenance": {
+        "kind": "original",
+        "creator": "Manse",
+        "createdAt": "2026-07-21T14:34:12.782Z"
+      }
+    }
+  ]
+}
