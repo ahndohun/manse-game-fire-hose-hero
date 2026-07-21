@@ -3,11 +3,11 @@ import { readFile } from "node:fs/promises";
 import test from "node:test";
 import vm from "node:vm";
 
-test("the build emits an install-time precache covering the shell and pack", async () => {
-  const source = await readFile("dist/client/sw-precache.js", "utf8");
-  const context = { self: {} };
-  vm.runInNewContext(source, context, { filename: "dist/client/sw-precache.js" });
-  const urls = context.self.__MANSE_PRECACHE__;
+test("the build injects an install-time precache covering the shell and pack", async () => {
+  const source = await readFile("dist/client/sw.js", "utf8");
+  const match = source.match(/const PRECACHE_URLS = (\[[^;]*\]);/);
+  assert.notEqual(match, null, "the built worker must declare PRECACHE_URLS");
+  const urls = JSON.parse(match[1]);
   assert.equal(Array.isArray(urls), true);
   assert.equal(urls.includes("/"), true, "the navigation shell must be precached");
   assert.equal(urls.some((url) => url.startsWith("/assets/")), true, "built shell assets must be precached");

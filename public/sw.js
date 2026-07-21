@@ -1,19 +1,15 @@
 const CACHE_NAME = "manse-game-v1";
 
-// The production build writes /sw-precache.js with the hashed shell asset and
-// pack URLs. In development the file is absent and precaching is skipped.
-let precacheUrls = [];
-try {
-  importScripts("/sw-precache.js");
-  if (Array.isArray(self.__MANSE_PRECACHE__)) precacheUrls = self.__MANSE_PRECACHE__;
-} catch {
-  precacheUrls = [];
-}
+// scripts/generate-sw-precache.mjs rewrites the next line after each
+// production build with the hashed shell and pack URLs, so a single online
+// visit is enough to play offline later. In development the list stays empty
+// and the worker behaves as a plain runtime cache.
+const PRECACHE_URLS = [];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME)
-      .then((cache) => Promise.allSettled(precacheUrls.map((url) => cache.add(url))))
+      .then((cache) => Promise.allSettled(PRECACHE_URLS.map((url) => cache.add(url))))
       .then(() => self.skipWaiting()),
   );
 });
