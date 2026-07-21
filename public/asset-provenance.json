@@ -10,6 +10,16 @@
       "sha256": "c458052c3dbf05f85536f886ad1de83c27829269205e5656e9f57bf5b6b376f4"
     },
     {
+      "path": "/packs/fire-hose-hero/assets/images/fire-hose-hero.png",
+      "origin": "generated",
+      "tool": "OpenAI image_gen built-in tool",
+      "model": "Built-in image_gen model (identifier not reported)",
+      "prompt": "Use case: stylized-concept\nAsset type: original 16:9 landscape hero bitmap for the Fire Hose Hero browser motion game\nPrimary request: Create an energetic, friendly firefighting game illustration: a sturdy fire hose nozzle in the lower foreground launches a sweeping arc of cool blue water toward a cluster of small playful ember-shaped flames around a simple fire-station courtyard, with the water visibly calming and shrinking the flames. Convey aim-from-a-distance play without showing a person or child.\nScene/backdrop: cinematic but welcoming fire-station courtyard at dusk, simplified architecture, layered atmospheric depth, no emergency panic\nSubject: bold curved water stream, hose nozzle, expressive non-character flame shapes, droplets and gentle steam where water meets embers\nStyle/medium: premium stylized editorial game illustration, softly textured gouache with crisp modern forms, original visual language, suitable for a family-friendly active game\nComposition/framing: exact 16:9 horizontal composition; water arc creates a strong diagonal from lower foreground toward the flame cluster; keep key subjects within safe center area for responsive cropping; clean perimeter; no UI panels\nLighting/mood: courageous, playful, controlled, reassuring rather than dangerous; luminous water highlights and warm ember glow\nColor palette: deep ember red and rust (#9E2F25, #C94732), cool water blue and navy (#2D8FAE, #0E4055), warm cream (#FFF3D6); accessible high-contrast separation; avoid neon colors\nMaterials/textures: tactile paper grain, painted water droplets, soft steam, matte illustration finish\nConstraints: original generated art only; no recognizable copyrighted characters; no public figures; no children; no photorealistic people; absolutely no words, letters, numbers, signage, logos, trademarks, interface elements, borders, or watermark; no injury, smoke danger, destruction, weapons, fear, or unsafe movement\nAvoid: photorealism, generic 3D render, clip art, gradients that reduce contrast, busy clutter, baked-in text",
+      "generatedAt": "2026-07-21T18:43:19.000Z",
+      "license": "MIT",
+      "sha256": "f8ce19a91a568bc11010081835e7e918adc2ec59c88c997339756a032bf9cc25"
+    },
+    {
       "path": "/packs/fire-hose-hero/assets/audio/success.wav",
       "origin": "original-procedural",
       "creator": "Manse",

@@ -5,18 +5,27 @@
     "title": [
       {
         "locale": "ko",
-        "text": "소방수 물줄기 (Fire Hose Hero)"
+        "text": "소방수 물줄기"
+      },
+      {
+        "locale": "en",
+        "text": "Fire Hose Hero"
       }
     ],
     "summary": [
       {
         "locale": "ko",
+        "text": "소방 호스를 조준해 모든 불꽃을 끄고 하루를 구하세요."
+      },
+      {
+        "locale": "en",
         "text": "Aim your fire hose and put out every flame to save the day."
       }
     ],
     "theme": "A brave little firefighter aims a hose stream at playful flames popping up around a building",
     "locales": [
-      "ko"
+      "ko",
+      "en"
     ],
     "ageBands": [
       "4-5",
@@ -44,7 +53,11 @@
       "name": [
         {
           "locale": "ko",
-          "text": "Guide"
+          "text": "소방 안내원"
+        },
+        {
+          "locale": "en",
+          "text": "Firehouse Guide"
         }
       ],
       "artAssetId": null,
@@ -60,6 +73,11 @@
         "items": [
           {
             "locale": "ko",
+            "text": "소방서 종이 울려요! 불꽃이 하나둘 나타나요. 호스를 잡고 출동해요!",
+            "audioAssetId": null
+          },
+          {
+            "locale": "en",
             "text": "The fire station bell is ringing! Flames are popping up — grab your hose!",
             "audioAssetId": null
           }
@@ -69,7 +87,7 @@
       "demo": null,
       "challenge": null,
       "learning": null,
-      "artAssetId": null,
+      "artAssetId": "fire-hose-hero-art",
       "energy": "calm",
       "terminal": false,
       "transitions": [
@@ -87,6 +105,11 @@
         "items": [
           {
             "locale": "ko",
+            "text": "팔로 불꽃을 조준하고, 불이 꺼질 때까지 물줄기를 가만히 유지해요.",
+            "audioAssetId": null
+          },
+          {
+            "locale": "en",
             "text": "Point your arm at each flame and hold the stream on it until it goes out.",
             "audioAssetId": null
           }
@@ -137,6 +160,11 @@
         "items": [
           {
             "locale": "ko",
+            "text": "잘하고 있어요! 팔로 불꽃을 조준하고, 불이 꺼질 때까지 물줄기를 유지해요.",
+            "audioAssetId": null
+          },
+          {
+            "locale": "en",
             "text": "Point your arm at each flame and hold the stream on it until it goes out.",
             "audioAssetId": null
           }
@@ -182,6 +210,11 @@
         "items": [
           {
             "locale": "ko",
+            "text": "모든 불꽃을 껐어요! 진정한 소방수 물줄기 영웅이에요.",
+            "audioAssetId": null
+          },
+          {
+            "locale": "en",
             "text": "Every flame is out! You are a true Fire Hose Hero.",
             "audioAssetId": null
           }
@@ -206,7 +239,36 @@
     "maxHighEnergyMs": 60000
   },
   "assets": {
-    "images": [],
+    "images": [
+      {
+        "id": "fire-hose-hero-art",
+        "path": "assets/images/fire-hose-hero.png",
+        "mediaType": "image/png",
+        "alt": [
+          {
+            "locale": "ko",
+            "text": "소방서 마당에서 호스 물줄기가 작은 불꽃들을 향해 시원하게 뻗어가는 그림"
+          },
+          {
+            "locale": "en",
+            "text": "A fire hose sends a sweeping blue stream toward small flames in a fire-station courtyard"
+          }
+        ],
+        "license": {
+          "spdxId": "MIT",
+          "name": "MIT License",
+          "url": "https://spdx.org/licenses/MIT.html",
+          "attribution": "Generated for Manse — Fire Hose Hero; SHA-256 f8ce19a91a568bc11010081835e7e918adc2ec59c88c997339756a032bf9cc25"
+        },
+        "provenance": {
+          "kind": "generated",
+          "tool": "OpenAI image_gen built-in tool",
+          "model": "Built-in image_gen model (identifier not reported)",
+          "prompt": "Use case: stylized-concept\nAsset type: original 16:9 landscape hero bitmap for the Fire Hose Hero browser motion game\nPrimary request: Create an energetic, friendly firefighting game illustration: a sturdy fire hose nozzle in the lower foreground launches a sweeping arc of cool blue water toward a cluster of small playful ember-shaped flames around a simple fire-station courtyard, with the water visibly calming and shrinking the flames. Convey aim-from-a-distance play without showing a person or child.\nScene/backdrop: cinematic but welcoming fire-station courtyard at dusk, simplified architecture, layered atmospheric depth, no emergency panic\nSubject: bold curved water stream, hose nozzle, expressive non-character flame shapes, droplets and gentle steam where water meets embers\nStyle/medium: premium stylized editorial game illustration, softly textured gouache with crisp modern forms, original visual language, suitable for a family-friendly active game\nComposition/framing: exact 16:9 horizontal composition; water arc creates a strong diagonal from lower foreground toward the flame cluster; keep key subjects within safe center area for responsive cropping; clean perimeter; no UI panels\nLighting/mood: courageous, playful, controlled, reassuring rather than dangerous; luminous water highlights and warm ember glow\nColor palette: deep ember red and rust (#9E2F25, #C94732), cool water blue and navy (#2D8FAE, #0E4055), warm cream (#FFF3D6); accessible high-contrast separation; avoid neon colors\nMaterials/textures: tactile paper grain, painted water droplets, soft steam, matte illustration finish\nConstraints: original generated art only; no recognizable copyrighted characters; no public figures; no children; no photorealistic people; absolutely no words, letters, numbers, signage, logos, trademarks, interface elements, borders, or watermark; no injury, smoke danger, destruction, weapons, fear, or unsafe movement\nAvoid: photorealism, generic 3D render, clip art, gradients that reduce contrast, busy clutter, baked-in text",
+          "generatedAt": "2026-07-21T18:43:19.000Z"
+        }
+      }
+    ],
     "audio": [
       {
         "id": "success-tone",
