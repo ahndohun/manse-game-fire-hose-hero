@@ -43,6 +43,7 @@ const UI_COPY = {
       busy: "Starting",
       language: "Changing language",
       complete: "Complete",
+      failed: "Ready to retry",
       idle: "Choose how to play",
       camera: "Camera stays on device",
       simulator: "Simulator live",
@@ -77,6 +78,7 @@ const UI_COPY = {
       busy: "시작하는 중",
       language: "언어를 바꾸는 중",
       complete: "완료",
+      failed: "재출동 준비",
       idle: "플레이 방법을 선택하세요",
       camera: "카메라 영상은 기기에만 저장돼요",
       simulator: "포인터 모드 실행 중",
@@ -303,7 +305,9 @@ export function GameClient() {
       : resetting
         ? t.status.language
       : snapshot.phase === "complete"
-        ? t.status.complete
+        ? snapshot.sceneId === "mission-failed"
+          ? t.status.failed
+          : t.status.complete
         : snapshot.phase === "idle"
           ? t.status.idle
           : snapshot.cameraActive

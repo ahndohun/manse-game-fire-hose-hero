@@ -46,6 +46,8 @@ test("ships a three-alarm mission and a game-specific AR renderer", async () => 
   assert.equal(pack.scenes.some((scene) => scene.id === "all-clear" && scene.terminal), true);
   assert.equal(pack.scenes.some((scene) => scene.id === "mission-failed" && scene.terminal), true);
   assert.match(clientSource, /rendererFactory: createFireHoseRendererFactory/);
+  assert.match(clientSource, /failed: "Ready to retry"/);
+  assert.match(clientSource, /snapshot\.sceneId === "mission-failed"/);
   assert.match(rendererSource, /drawFirefighterCostume/);
   assert.match(rendererSource, /drawFireTarget/);
   assert.match(rendererSource, /SCORE/);
