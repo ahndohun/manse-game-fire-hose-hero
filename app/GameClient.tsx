@@ -16,6 +16,7 @@ import {
 } from "./mission-state";
 
 const PACK_URL = `/packs/${GAME_CONFIG.slug}/manse.pack.json`;
+const SHOWCASE_URL = "https://manse-showcase.ran584000.chatgpt.site";
 const EMPTY: Pick<PlayerSnapshot, "phase" | "sceneId" | "sceneKind" | "provider" | "tier" | "renderer" | "cameraActive" | "targetProgress" | "targets" | "caption"> = {
   phase: "idle",
   sceneId: null,
@@ -36,6 +37,8 @@ const UI_COPY = {
     gameDetails: "3 alarms · 12 fires · 90-second mission",
     privacy: "Camera stays on this device · no account · no analytics",
     localeLabel: "Choose language",
+    platformLabel: "Manse platform",
+    browseGames: "Browse games",
     playerLabel: "Game player",
     stageLabel: "Interactive motion game stage",
     status: {
@@ -71,6 +74,8 @@ const UI_COPY = {
     gameDetails: "출동 3회 · 불꽃 12개 · 90초 임무",
     privacy: "카메라 영상은 이 기기에만 머물러요 · 계정 불필요 · 분석 도구 없음",
     localeLabel: "언어 선택",
+    platformLabel: "Manse 플랫폼",
+    browseGames: "게임 둘러보기",
     playerLabel: "게임 플레이어",
     stageLabel: "움직임 게임 플레이 공간",
     status: {
@@ -316,11 +321,21 @@ export function GameClient() {
 
   return (
     <>
-      <nav className="topbar" aria-label={t.localeLabel}>
-        <span className="manse-mark">MANSE <i aria-hidden="true" /></span>
-        <div className="locale-switch" role="group" aria-label={t.localeLabel}>
-          <button type="button" aria-pressed={locale === "ko"} onClick={() => changeLocale("ko")} disabled={resetting}>한국어</button>
-          <button type="button" aria-pressed={locale === "en"} onClick={() => changeLocale("en")} disabled={resetting}>English</button>
+      <nav className="topbar" aria-label={t.platformLabel}>
+        <a className="manse-mark" href={SHOWCASE_URL} aria-label="Manse Showcase">Manse</a>
+        <div className="platform-actions">
+          <a className="browse-games" href={SHOWCASE_URL}>
+            <span aria-hidden="true">&#8592;</span>
+            <span>{t.browseGames}</span>
+          </a>
+          <div className="locale-switch" role="group" aria-label={t.localeLabel}>
+            <button type="button" aria-pressed={locale === "ko"} onClick={() => changeLocale("ko")} disabled={resetting}>
+              <span className="locale-long">한국어</span><span className="locale-short" aria-hidden="true">KO</span>
+            </button>
+            <button type="button" aria-pressed={locale === "en"} onClick={() => changeLocale("en")} disabled={resetting}>
+              <span className="locale-long">English</span><span className="locale-short" aria-hidden="true">EN</span>
+            </button>
+          </div>
         </div>
       </nav>
 

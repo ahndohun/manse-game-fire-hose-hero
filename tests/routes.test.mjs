@@ -23,11 +23,29 @@ test("server-renders the anonymous game start experience", async () => {
   assert.match(html, /Camera stays on this device/);
   assert.match(html, /한국어/);
   assert.match(html, /English/);
+  assert.match(html, /Browse games/);
+  assert.match(html, /https:\/\/manse-showcase\.ran584000\.chatgpt\.site/);
   assert.match(html, /\/packs\/fire-hose-hero\/assets\/images\/fire-hose-hero\.png/);
   assert.match(html, /https:\/\/github\.com\/ahndohun\/manse-game-fire-hose-hero/);
   assert.doesNotMatch(html, /replace-me/);
   assert.doesNotMatch(html, /signin-with-chatgpt|<iframe\b|<form\b/i);
   assert.doesNotMatch(html, /runtime ready|device tier/i);
+  assert.doesNotMatch(html, /[—–]/, "visible shell copy must not use em or en dashes");
+});
+
+test("shared platform shell stays single-line at mobile widths", async () => {
+  const [clientSource, css] = await Promise.all([
+    readFile("app/GameClient.tsx", "utf8"),
+    readFile("app/globals.css", "utf8"),
+  ]);
+  assert.match(clientSource, /const SHOWCASE_URL = "https:\/\/manse-showcase\.ran584000\.chatgpt\.site"/);
+  assert.match(clientSource, /className="manse-mark" href=\{SHOWCASE_URL\}/);
+  assert.match(clientSource, /className="browse-games" href=\{SHOWCASE_URL\}/);
+  assert.match(css, /\.topbar \{[^}]*min-height: 68px[^}]*display: flex[^}]*align-items: center[^}]*justify-content: space-between/s);
+  assert.match(css, /@media \(max-width: 620px\)[\s\S]*?\.topbar \{[^}]*min-height: 64px[^}]*padding-inline: 10px/s);
+  assert.match(css, /\.locale-long \{ display: none; \}/);
+  assert.match(css, /\.stage:has\(\.start-card\) \{[^}]*height: auto[^}]*min-height: 720px[^}]*max-height: none/s);
+  assert.doesNotMatch(css, /\.topbar[^}]*flex-wrap:\s*wrap/s);
 });
 
 test("ships a three-alarm mission and a game-specific AR renderer", async () => {
