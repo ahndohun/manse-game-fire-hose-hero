@@ -322,7 +322,7 @@ export function GameClient() {
   return (
     <>
       <nav className="topbar" aria-label={t.platformLabel}>
-        <a className="manse-mark" href={SHOWCASE_URL} aria-label="Manse Showcase">Manse</a>
+        <a className="manse-mark" href={SHOWCASE_URL} aria-label="Manse Showcase">MANSE</a>
         <div className="platform-actions">
           <a className="browse-games" href={SHOWCASE_URL}>
             <span aria-hidden="true">&#8592;</span>
